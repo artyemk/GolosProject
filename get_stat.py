@@ -13,7 +13,7 @@ import json
 
 ws = WebSocket()
 ws.connect('wss://api.golos.cf')
-db = MongoClient('37.60.177.240:27017').golos
+db = MongoClient().golos
 
 true = True
 false = False
@@ -91,7 +91,7 @@ def hoy(top_words,var):
         except:
             temp['avg_comms'] = 0
         total.append(temp)
-        return total
+    return total
 
 
 def norm_text():
