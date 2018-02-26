@@ -4,7 +4,6 @@
 # In[1]:
 from pymongo import MongoClient
 import pymongo
-import re
 import datetime
 import time
 import telebot
@@ -26,17 +25,10 @@ token = "token_bot"
 bot = telebot.TeleBot(token)
 url = "https://api.telegram.org/bot%s/", token
 
-var = get_stat.get_article_info('2018-02-22')
-popular = get_stat.norm_text('2018-02-22')
-mood = get_stat.comment_analysis('2018-02-22')
-stats = get_stat.hoy(popular, var)
-
-
-
 @bot.message_handler(commands=['start'])
 def start(message):
     keyboard = types.InlineKeyboardMarkup()
-    btn = types.InlineKeyboardButton(text="Today", callback_data=str(message.chat.id) + "_NU NIXYA SEBE RABOTAET")
+    btn = types.InlineKeyboardButton(text="Today", callback_data=str(message.chat.id) + "_data")
     keyboard.add(btn)
     btn1= types.InlineKeyboardButton(text="Choose date(WIP)", callback_data=str(message.chat.id) +"_date")
     keyboard.add(btn1)
@@ -50,7 +42,6 @@ def callbacks(call):
         bot.send_message(s[0],s[1])
     else:
         bot.send_message(s[0],"Выберите дату:")
-        get_stats_msg(s[0])
 
 def main():
     signal.signal(signal.SIGINT, signal_handler)
