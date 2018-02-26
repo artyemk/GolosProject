@@ -29,7 +29,7 @@ db = MongoClient().golos
 
 #markup = types.ReplyKeyboardMarkup()
 #markup.row('/stats')
-token = "541950328:AAH1idc0uCTFDKH3oXsUlxk_Qvq0EiZcQGY"
+token = "token_bot"
 bot = telebot.TeleBot(token)
 url = "https://api.telegram.org/bot%s/", token
 
