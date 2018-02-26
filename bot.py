@@ -40,7 +40,7 @@ def callbacks(call):
     s = call.data.split("_")
     if s[1] == "today":
         stats = db.stats.find_one({"timestamp": str(datetime.now()).split(" ")[0]})
-        user_text(s[0],)
+        user_text(s[0],stats['popular'],stats['mood'],stats['stats'])
     else:
         bot.send_message(s[0],"Выберите дату:")
         
