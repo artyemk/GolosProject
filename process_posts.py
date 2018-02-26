@@ -6,16 +6,24 @@ from nltk.corpus import stopwords
 from pymorphy2 import MorphAnalyzer
 from collections import Counter
 import json
+import schedule
+from time import sleep
+from datetime import datetime, timedelta
 
+#connecting to golos and db
 ws = WebSocket()
 ws.connect('wss://api.golos.cf')
 db = MongoClient().golos
 
+#preventing misrecognition of variables in input
 true = True
 false = False
 null = None
 
+
+#scheduled basic analysis func
 def analyze(timestamp):
+    #setting up base variables
     analysis = {}
     text = ''
     posts_array = []
@@ -24,6 +32,7 @@ def analyze(timestamp):
     neu = 0
     total_dump=[]
     print('Going for it')
+#parsing db for data and golos for post params
     for i in db.posts.find({'timestamp':timestamp}):
         ws.send(json.dumps({"id":1,"method":"get_content","params":[i['author'],i['permlink']]}))
         info = eval(ws.recv())['result']
@@ -46,6 +55,8 @@ def analyze(timestamp):
         posts_array.append(i['body'])
         text += i['body'] + ' '
     print('Starting the mood')
+
+#neurolinguistic analysis on post altitude
     for post in posts_array:
         if sent.foo(post) == 'Positive':
             pos +=1
@@ -53,6 +64,7 @@ def analyze(timestamp):
             neg +=1
         elif sent.foo(post) == 'Neutral':
             neu +=1
+#normalizing raw_text
     print('Normalization')
     text_norm = []
     cnt = Counter()
@@ -81,6 +93,7 @@ def analyze(timestamp):
         else:
             pass
     print('Finding Popular')
+#getting most used words
     popular=()
     for word in text_norm:
         if word not in stopwords.words('russian'):
@@ -95,6 +108,7 @@ def analyze(timestamp):
     
     total = []
     
+#getting avg stats
     for word in popular:
         count = 0
         gbg = 0
@@ -122,8 +136,25 @@ def analyze(timestamp):
             temp['avg_comms'] = 0
         total.append(temp)
     
-    analysis = {'date':'2018-02-25',
+#inserting in DB
+    analysis = {'date': timestamp,
                'popular': popular,
                'mood': mood,
                'stats': total}
     return db.stats.insert_one(analysis)
+
+#getting current timestamp to golos format
+def get_str_date():
+    date = datetime.now() - timedelta(days=1)
+    timestamp = str(date).split()[0]
+    return timestamp
+print('Starting up')
+
+#SCHEDULER MODULE. Parsing every day at 01:00 for the previous day's parsed post
+schedule.every().day.at('01:00').do(analyze, get_str_date())
+print('Scheduler up')
+
+while True:
+    print('check')
+    schedule.run_pending()
+    sleep(60)
