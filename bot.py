@@ -4,7 +4,7 @@
 # In[1]:
 from pymongo import MongoClient
 import pymongo
-import datetime
+from datetime import datetime
 import time
 import telebot
 from telebot import types
@@ -38,8 +38,9 @@ def start(message):
 @bot.callback_query_handler(func=lambda call: True)
 def callbacks(call):
     s = call.data.split("_")
-    if s[1] == "date":
+    if s[1] == "data":
         bot.send_message(s[0],s[1])
+        db.stats.find_one({"timestamp": str(datetime.now()).split(" ")[0]})
     else:
         bot.send_message(s[0],"Выберите дату:")
 
