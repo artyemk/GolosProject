@@ -31,6 +31,9 @@ for i in post:
        'permlink': i['permlink'],
        'timestamp': i['created'].split('T')[0],
        'title': i['title'],
+       'votes':i['net_votes'],
+       'comments':i['children'],
+       'reward': float(info['pending_payout_value'].split()[0]),
        'body': re.sub(r"<.*?>",' ',i['body']),
        'tags': tags
        }
