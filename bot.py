@@ -41,14 +41,19 @@ def start(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callbacks(call):
+    keybd = types.InlineKeyboardMarkup()
     s = call.data.split("_")
     if s[1] == "today":
         stats = db.stots.find_one({"date": str(datetime.now()).split(" ")[0]}) 
         user_text(s[0],stats['popular'],stats['mood'],stats['stats'])
+    elif s[1] == "date":
+        for i in db.stots.distinct("date"):
+            keybd.add(types.InlineKeyboardButton(text=i, callback_data=s[0] + "_" + i))
+        bot.send_message(s[0],"Выберите дату📅",reply_markup=keybd)
     else:
-        bot.send_message(s[0],"Выберите дату:")
-        
-        
+        stats = db.stots.find_one({"date": s[1]})
+        user_text(s[0],stats['popular'],stats['mood'],stats['stats'])
+
 def user_text(message,popular,mood,stats):
     res_popular = ""
     arr = []
