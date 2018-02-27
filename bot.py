@@ -1,12 +1,16 @@
 
 # coding: utf-8
 
+
 # In[1]:
+from datetime import datetime
 from pymongo import MongoClient
 import pymongo
+import sys
 from datetime import datetime
 import time
 import telebot
+import signal
 from telebot import types
 
 template_popular = "Самыми популярными словами на сегодня были: \n"
@@ -21,7 +25,7 @@ db = MongoClient().golos
 
 #markup = types.ReplyKeyboardMarkup()
 #markup.row('/stats')
-token = "token_bot"
+token = "541950328:AAH1idc0uCTFDKH3oXsUlxk_Qvq0EiZcQGY"
 bot = telebot.TeleBot(token)
 url = "https://api.telegram.org/bot%s/", token
 
@@ -39,7 +43,7 @@ def start(message):
 def callbacks(call):
     s = call.data.split("_")
     if s[1] == "today":
-        stats = db.stats.find_one({"timestamp": str(datetime.now()).split(" ")[0]})
+        stats = db.stots.find_one({"date": str(datetime.now()).split(" ")[0]}) 
         user_text(s[0],stats['popular'],stats['mood'],stats['stats'])
     else:
         bot.send_message(s[0],"Выберите дату:")
@@ -54,10 +58,13 @@ def user_text(message,popular,mood,stats):
     sort_cash = []
     sort_votes = []
     sort_comms = []
-    count = 0
+    count = 1
     for item in popular:
         res_popular += str(count) + ") " + str(item[0]) + ": " + str(item[1]) + "\n"
         count += 1
+        if count == 10:
+            count = 0
+            break
     for item in stats:
         temp1 = [item['word'], round(item['avg_cash'],2)]
         temp2 = [item['word'], round(item['avg_votes'],2)]
@@ -68,25 +75,30 @@ def user_text(message,popular,mood,stats):
     sort_cash.sort(reverse = True, key=lambda x: x[1])
     sort_votes.sort(reverse = True, key=lambda x: x[1])
     sort_comms.sort(reverse = True, key=lambda x: x[1])
-    count = 0 
     for item in sort_cash:
         count += 1
         res_cash += str(count) + ")" + str(item[0]) + ": " + str(item[1]) + "\n"
-    count = 0
+        if count == 10:
+            count = 0
+            break
     for item in sort_votes:
         count += 1
         res_votes += str(count) + ")" + str(item[0]) + ": " + str(item[1]) + "\n"
-    count = 0
+        if count == 10:
+            count = 0
+            break
     for item in sort_comms:
         count += 1
         res_comms += str(count) + ")" + str(item[0]) + ": " + str(item[1]) + "\n"
-        
+        if count == 10:
+            count == 0
+            break
     bot.send_message(message, "Статистика собрана:")
     bot.send_message(message, template_popular + res_popular)
     bot.send_message(message, template_mood +
-                         "Позитивных постов: " +str(mood["positive_comments"]) + "\n" +
-                         "Негативных постов: " + str(mood["negative_comments"]) + "\n" +
-                         "Нейтральных постов: " + str(mood["neutral_comments"]) + "\n")
+                         "Позитивных постов: " +str(mood["positive_posts"]) + "\n" +
+                         "Негативных постов: " + str(mood["negative_posts"]) + "\n" +
+                         "Нейтральных постов: " + str(mood["neutral_posts"]) + "\n")
     bot.send_message(message, template_cash + res_cash)
     bot.send_message(message, template_votes + res_votes)
     bot.send_message(message, template_comms + res_comms)
