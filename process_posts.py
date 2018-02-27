@@ -1,3 +1,5 @@
+#-*- coding: utf-8 -*-
+#from __future__ import unicode_literals
 from websocket import WebSocket
 from pymongo import MongoClient
 import sent
@@ -141,14 +143,14 @@ def analyze(timestamp):
                'popular': popular,
                'mood': mood,
                'stats': total}
-    return db.stats.insert_one(analysis)
+    print(str(analysis).encode('utf-8'))
+    return db.stots.insert_one(analysis)
 
 #getting current timestamp to golos format
 def get_str_date():
     date = datetime.now() - timedelta(days=1)
     timestamp = str(date).split()[0]
     return timestamp
-print('Starting up')
 
 #SCHEDULER MODULE. Parsing every day at 01:00 for the previous day's parsed post
 schedule.every().day.at('01:00').do(analyze, get_str_date())
@@ -158,3 +160,4 @@ while True:
     print('check')
     schedule.run_pending()
     sleep(60)
+analyze('2018-02-27')

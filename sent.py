@@ -12,8 +12,8 @@ neu_arr = []
 pp_arr = []
 pn_arr = []
 arr = []
-file = pd.read_csv('russian.csv')
-file1 = pd.read_csv('phrases.csv')
+file = pd.read_csv('/root/GolosProject/russian.csv')
+file1 = pd.read_csv('/root/GolosProject/phrases.csv')
 arr.append(set(file['word']))
 for i in range(len(file['score'])):
     if file['score'][i] == 1.7 or file['score'][i] == -1.7:
